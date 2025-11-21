@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Aves de la Albufera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background: #e8f5e9;
+        }
+        .bird-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: .5em;
+            border: 2px solid #c8e6c9;
+            box-shadow: 1px 2px 12px #90caf941;
+        }
+        th.sortable {
+            cursor: pointer;
+        }
+        .modal-img-preview {
+            width: 120px;
+            object-fit: cover;
+            border-radius: .4em;
+        }
+        .table td, .table th {
+            vertical-align: middle !important;
+            text-align: center;
+        }
+        .action-btn {
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-success fw-bold">🌿 Aves de la Albufera 🌿</h1>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createBirdModal">
+                <i class="bi bi-plus-circle"></i> Añadir Ave
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table id="birdsTable" class="table table-bordered table-hover shadow">
+                <thead class="table-success">
+                    <tr>
+                        <th class="sortable" data-col="bird_id">ID <span class="sort-icon"></span></th>
+                        <th>Foto</th>
+                        <th class="sortable" data-col="common_name">Nombre <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="scientific_name">Científico <span class="sort-icon"></span></th>
+                        <th class="sortable" data-col="description">Descripción <span class="sort-icon"></span></th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="birdsTableBody">
+                    <!-- Aquí va el contenido generado dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createBirdModal" tabindex="-1" aria-labelledby="createBirdModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content shadow">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="createBirdModalLabel">Añadir Ave</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <form id="createBirdForm">
+              <div class="modal-body">
+                  <div class="mb-3">
+                      <label for="common_name" class="form-label">Nombre Común</label>
+                      <input type="text" class="form-control" id="common_name" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="scientific_name" class="form-label">Nombre Científico</label>
+                      <input type="text" class="form-control" id="scientific_name" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="description" class="form-label">Descripción</label>
+                      <textarea class="form-control" id="description" rows="2" required></textarea>
+                  </div>
+                  <div class="mb-3">
+                      <label for="img_url" class="form-label">URL de Imagen</label>
+                      <input type="text" class="form-control" id="img_url" required>
+                      <img src="" id="previewCreateImg" class="modal-img-preview mt-2 d-none" alt="Previsualización" />
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success">Crear</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal fade" id="editBirdModal" tabindex="-1" aria-labelledby="editBirdModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content shadow">
+          <div class="modal-header bg-warning text-white">
+            <h5 class="modal-title" id="editBirdModalLabel">Editar Ave</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <form id="editBirdForm">
+              <div class="modal-body">
+                  <input type="hidden" id="edit_bird_id">
+                  <div class="mb-3">
+                      <label for="edit_common_name" class="form-label">Nombre Común</label>
+                      <input type="text" class="form-control" id="edit_common_name" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="edit_scientific_name" class="form-label">Nombre Científico</label>
+                      <input type="text" class="form-control" id="edit_scientific_name" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="edit_description" class="form-label">Descripción</label>
+                      <textarea class="form-control" id="edit_description" rows="2" required></textarea>
+                  </div>
+                  <div class="mb-3">
+                      <label for="edit_img_url" class="form-label">URL de Imagen</label>
+                      <input type="text" class="form-control" id="edit_img_url" required>
+                      <img src="" id="previewEditImg" class="modal-img-preview mt-2 d-none" alt="Previsualización" />
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-warning text-white">Guardar Cambios</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+      <div id="toastNotif" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastBody"></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- api.js y lógica principal -->
+    <script src="js/api.js"></script>
+    <script>
+        let birds = [];
+        let sortCol = "bird_id";
+        let sortAsc = true;
+
+        function showToast(msg, color="primary") {
+            document.getElementById('toastNotif').className = `toast align-items-center text-bg-${color} border-0`;
+            document.getElementById('toastBody').textContent = msg;
+            const toast = new bootstrap.Toast(document.getElementById('toastNotif'));
+            toast.show();
+        }
+        
+        function renderTable() {
+            let rows = '';
+            for (const bird of birds) {
+                rows += `
+                  <tr>
+                      <td>${bird.bird_id}</td>
+                      <td><img src="${bird.img_url}" class="bird-img" alt="Imagen de ${bird.common_name}"></td>
+                      <td>${bird.common_name}</td>
+                      <td><i>${bird.scientific_name}</i></td>
+                      <td>${bird.description}</td>
+                      <td>
+                          <button class="btn btn-sm btn-warning text-white action-btn edit-btn" data-id="${bird.bird_id}">
+                            <i class="bi bi-pencil-square"></i>
+                          </button>
+                          <button class="btn btn-sm btn-danger action-btn delete-btn" data-id="${bird.bird_id}">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                      </td>
+                  </tr>
+                `;
+            }
+            document.getElementById('birdsTableBody').innerHTML = rows;
+
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.onclick = () => openEditModal(btn.dataset.id);
+            });
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.onclick = () => confirmDelete(btn.dataset.id);
+            });
+        }
+
+        function sortBirds(col) {
+            if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+            birds.sort((a, b) => {
+                if (a[col] > b[col]) return sortAsc ? 1 : -1;
+                if (a[col] < b[col]) return sortAsc ? -1 : 1;
+                return 0;
+            });
+            // Cambiar iconos de orden
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.querySelector('.sort-icon').innerHTML = '';
+                if (th.dataset.col === sortCol)
+                    th.querySelector('.sort-icon').innerHTML = sortAsc? '▲':'▼';
+            });
+            renderTable();
+        }
+
+        //--- CRUD ---
+        async function fetchBirds() {
+            try {
+                birds = await api.obtenerAves();
+                sortBirds(sortCol);
+            } catch (e) {
+                showToast("No se pudieron cargar las aves: " + e.message, "danger");
+            }
+        }
+
+        async function createBird(evt) {
+            evt.preventDefault();
+            const ave = {
+                common_name: document.getElementById('common_name').value.trim(),
+                scientific_name: document.getElementById('scientific_name').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                img_url: document.getElementById('img_url').value.trim()
+            };
+            try {
+                await api.agregarAve(ave);
+                showToast("Ave añadida correctamente.", "success");
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('createBirdModal')).hide();
+                document.getElementById('createBirdForm').reset();
+                document.getElementById('previewCreateImg').classList.add('d-none');
+                fetchBirds();
+            } catch (e) {
+                showToast("Error creando ave: "+e.message, "danger");
+            }
+        }
+
+        function openEditModal(id) {
+            const bird = birds.find(b=>String(b.bird_id)===String(id));
+            if (!bird) return;
+            document.getElementById('edit_bird_id').value = bird.bird_id;
+            document.getElementById('edit_common_name').value = bird.common_name;
+            document.getElementById('edit_scientific_name').value = bird.scientific_name;
+            document.getElementById('edit_description').value = bird.description;
+            document.getElementById('edit_img_url').value = bird.img_url;
+            document.getElementById('previewEditImg').src = bird.img_url || "";
+            document.getElementById('previewEditImg').classList.toggle('d-none', !bird.img_url);
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('editBirdModal')).show();
+        }
+
+        async function editBird(evt) {
+            evt.preventDefault();
+            const ave = {
+                bird_id: document.getElementById('edit_bird_id').value,
+                common_name: document.getElementById('edit_common_name').value.trim(),
+                scientific_name: document.getElementById('edit_scientific_name').value.trim(),
+                description: document.getElementById('edit_description').value.trim(),
+                img_url: document.getElementById('edit_img_url').value.trim()
+            };
+            try {
+                await api.actualizarAve(ave);
+                showToast("Ave actualizada.", "success");
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('editBirdModal')).hide();
+                fetchBirds();
+            } catch (e) {
+                showToast("Error actualizando ave: "+e.message, "danger");
+            }
+        }
+
+        function confirmDelete(id) {
+            if (confirm("¿Eliminar esta ave?")) borrarBird(id);
+        }
+
+        async function borrarBird(id) {
+            try {
+                await api.eliminarAve(id);
+                showToast("Ave eliminada.", "success");
+                fetchBirds();
+            } catch (e) {
+                showToast("Error eliminando ave: " + e.message, "danger");
+            }
+        }
+
+        // Imagen preview modal crear
+        document.addEventListener('input', function(e) {
+            if (e.target?.id === 'img_url') {
+                const url = e.target.value.trim();
+                const img = document.getElementById('previewCreateImg');
+                if (url) {
+                    img.src = url;
+                    img.classList.remove('d-none');
+                } else {
+                    img.classList.add('d-none');
+                }
+            }
+            if (e.target?.id === 'edit_img_url') {
+                const url = e.target.value.trim();
+                const img = document.getElementById('previewEditImg');
+                if (url) {
+                    img.src = url;
+                    img.classList.remove('d-none');
+                } else {
+                    img.classList.add('d-none');
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchBirds();
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', () => sortBirds(th.dataset.col));
+            });
+            document.getElementById('createBirdForm').onsubmit = createBird;
+            document.getElementById('editBirdForm').onsubmit = editBird;
+        });
+    </script>
+</body>
+</html>
